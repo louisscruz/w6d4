@@ -63,6 +63,10 @@
 	  return res;
 	}
 
+	function isDOMLoaded(){
+	 return document.readyState == 'complete';
+	}
+
 	window.$l = $l;
 
 	  // let a = window.$l('div');
