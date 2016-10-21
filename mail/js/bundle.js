@@ -45,10 +45,15 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	const Router = __webpack_require__(1);
+	const Inbox = __webpack_require__(2);
+
+	const routes = {
+	  inbox: Inbox
+	};
 
 	document.addEventListener('DOMContentLoaded', function() {
 	  let content = document.getElementsByClassName('content')[0];
-	  let router = new Router(content);
+	  let router = new Router(content, routes);
 	  router.start();
 	  let sidebar = document.getElementsByClassName('sidebar-nav')[0].children;
 	  for (let i = 0; i < sidebar.length; i++) {
@@ -65,35 +70,105 @@
 /***/ function(module, exports) {
 
 	class Router {
-	  constructor(node) {
+	  constructor(node, routes) {
 	    this.node = node;
+	    this.routes = routes;
 	  }
 
 	  start() {
+	    window.location.hash = 'inbox';
 	    this.render();
-	    console.log(this.node);
-	    console.log('here');
 	    window.addEventListener('hashchange', event => {
-	      console.log('m in the event');
 	      this.render();
 	    });
 	  }
 
 	  activeRoute() {
-	    return window.location.hash.slice(1);
+	    const route = window.location.hash.slice(1);
+	    return this.routes[route];
 	  }
 
 	  render() {
 	    this.node.innerHTML = "";
-	    let currentRoute = this.activeRoute();
-	    let el = document.createElement('p');
-	    el.innerHTML = currentRoute;
-	    this.node.appendChild(el);
+	    let component = this.activeRoute();
+	    if (typeof component !== 'undefined') {
+	      // let el = document.createElement('p');
+	      // el.innerHTML = component.render();
+	      this.node.appendChild(component.render());
+	    }
 	  }
 
 	}
 
 	module.exports = Router;
+
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const MessageStore = __webpack_require__(3);
+
+	const inbox = {
+	  render() {
+	    let el = document.createElement('ul');
+	    el.className = 'messages';
+	    let messages = MessageStore.getInboxMessages();
+	    messages.forEach(message => {
+	      el.appendChild(this.renderMessage(message));
+	    });
+	    return el;
+	  },
+	  renderMessage(message) {
+	    let li = document.createElement('li');
+	    let f = document.createElement('span');
+	    f.setAttribute('class', 'from');
+	    f.innerHTML = message.from;
+	    let subject = document.createElement('span');
+	    subject.setAttribute('class', 'subject');
+	    subject.innerHTML = message.subject;
+	    let body = document.createElement('span');
+	    body.setAttribute('class', 'body');
+	    body.innerHTML = message.body;
+	    [f, subject, body].forEach(el => {
+	      li.appendChild(el);
+	    });
+	    return li;
+	  }
+	};
+
+	module.exports = inbox;
+
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	let messages = {
+	  sent: [
+	    {to: "friend@mail.com", subject: "Check this out", body: "It's so cool"},
+	    {to: "person@mail.com", subject: "zzz", body: "so booring"}
+	  ],
+	  inbox: [
+	    {from: "grandma@mail.com", subject: "Fwd: Fwd: Fwd: Check this out", body:
+	    "Stay at home mom discovers cure for leg cramps. Doctors hate her"},
+	    {from: "person@mail.com", subject: "Questionnaire",
+	    body: "Take this free quiz win $1000 dollars"}
+	  ]
+	};
+
+	class MessageStore {
+	  static getInboxMessages() {
+	    return messages.inbox;
+	  }
+
+	  static getSentMessages() {
+	    return messages.sent;
+	  }
+	}
+
+
+	module.exports = MessageStore;
 
 
 /***/ }

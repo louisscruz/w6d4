@@ -1,28 +1,30 @@
 class Router {
-  constructor(node) {
+  constructor(node, routes) {
     this.node = node;
+    this.routes = routes;
   }
 
   start() {
+    window.location.hash = 'inbox';
     this.render();
-    console.log(this.node);
-    console.log('here');
     window.addEventListener('hashchange', event => {
-      console.log('m in the event');
       this.render();
     });
   }
 
   activeRoute() {
-    return window.location.hash.slice(1);
+    const route = window.location.hash.slice(1);
+    return this.routes[route];
   }
 
   render() {
     this.node.innerHTML = "";
-    let currentRoute = this.activeRoute();
-    let el = document.createElement('p');
-    el.innerHTML = currentRoute;
-    this.node.appendChild(el);
+    let component = this.activeRoute();
+    if (typeof component !== 'undefined') {
+      // let el = document.createElement('p');
+      // el.innerHTML = component.render();
+      this.node.appendChild(component.render());
+    }
   }
 
 }
