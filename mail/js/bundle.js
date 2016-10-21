@@ -46,9 +46,11 @@
 
 	const Router = __webpack_require__(1);
 	const Inbox = __webpack_require__(2);
+	const Sent = __webpack_require__(4);
 
 	const routes = {
-	  inbox: Inbox
+	  inbox: Inbox,
+	  sent: Sent
 	};
 
 	document.addEventListener('DOMContentLoaded', function() {
@@ -157,6 +159,7 @@
 	  ]
 	};
 
+
 	class MessageStore {
 	  static getInboxMessages() {
 	    return messages.inbox;
@@ -165,10 +168,75 @@
 	  static getSentMessages() {
 	    return messages.sent;
 	  }
+	  static getMessageDraft() {
+	    return messageDraft;
+	  }
 	}
 
+	class Message {
+	  constructor(from, to, subject, body) {
+	    this.from = from || '';
+	    this.to = to || '';
+	    this.subject = subject || '';
+	    this.body = body || '';
+	  }
+	  updateDraftField(field, value) {
+	    if (field === 'from') {
+	      this.from = value;
+	    } else if (field === 'to') {
+	      this.to = value;
+	    } else if ( field === 'subject') {
+	      this.subject = value;
+	    } else {
+	      this.body = value;
+	    }
+	  }
+
+	  sendDraft() {
+	    messages.sent.push({ to: this.to, subject: this.subject, body: this.body });
+	  }
+	}
+
+	let messageDraft = new Message();
 
 	module.exports = MessageStore;
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const MessageStore = __webpack_require__(3);
+
+	const sent = {
+	  render() {
+	    let el = document.createElement('ul');
+	    el.className = 'messages';
+	    let messages = MessageStore.getSentMessages();
+	    messages.forEach(message => {
+	      el.appendChild(this.renderMessage(message));
+	    });
+	    return el;
+	  },
+	  renderMessage(message) {
+	    let li = document.createElement('li');
+	    let f = document.createElement('span');
+	    f.setAttribute('class', 'from');
+	    f.innerHTML = message.from;
+	    let subject = document.createElement('span');
+	    subject.setAttribute('class', 'subject');
+	    subject.innerHTML = message.subject;
+	    let body = document.createElement('span');
+	    body.setAttribute('class', 'body');
+	    body.innerHTML = message.body;
+	    [f, subject, body].forEach(el => {
+	      li.appendChild(el);
+	    });
+	    return li;
+	  }
+	};
+
+	module.exports = sent;
 
 
 /***/ }

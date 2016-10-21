@@ -11,6 +11,7 @@ let messages = {
   ]
 };
 
+
 class MessageStore {
   static getInboxMessages() {
     return messages.inbox;
@@ -19,7 +20,35 @@ class MessageStore {
   static getSentMessages() {
     return messages.sent;
   }
+  static getMessageDraft() {
+    return messageDraft;
+  }
 }
 
+class Message {
+  constructor(from, to, subject, body) {
+    this.from = from || '';
+    this.to = to || '';
+    this.subject = subject || '';
+    this.body = body || '';
+  }
+  updateDraftField(field, value) {
+    if (field === 'from') {
+      this.from = value;
+    } else if (field === 'to') {
+      this.to = value;
+    } else if ( field === 'subject') {
+      this.subject = value;
+    } else {
+      this.body = value;
+    }
+  }
+
+  sendDraft() {
+    messages.sent.push({ to: this.to, subject: this.subject, body: this.body });
+  }
+}
+
+let messageDraft = new Message();
 
 module.exports = MessageStore;
